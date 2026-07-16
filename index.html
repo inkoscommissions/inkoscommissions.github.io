@@ -1,119 +1,318 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inkos Commissions</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-      background: #14141a;
-      color: #f2f0eb;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: clamp(2rem, 6vw, 3.5rem);
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.02em;
-    }
-    h2.section-title {
-      font-size: 1.3rem;
-      margin-bottom: 0.4rem;
-    }
-    p.subtitle {
-      color: #a8a5a0;
-      font-size: 1.1rem;
-      max-width: 500px;
-      margin-bottom: 2.5rem;
-    }
-    form {
-      width: 100%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      text-align: left;
-    }
-    label {
-      font-size: 0.85rem;
-      color: #a8a5a0;
-      margin-bottom: 0.3rem;
-      display: block;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 0.7rem 0.9rem;
-      background: #1e1e26;
-      border: 1px solid #33333d;
-      border-radius: 6px;
-      color: #f2f0eb;
-      font-size: 1rem;
-      font-family: inherit;
-    }
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: #f2f0eb;
-    }
-    textarea { min-height: 120px; resize: vertical; }
-    button {
-      margin-top: 0.5rem;
-      padding: 0.8rem 1.8rem;
-      background: #f2f0eb;
-      color: #14141a;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
-    button:hover { transform: translateY(-2px); }
-    .status {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #a8a5a0;
-      display: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inkos Commissions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e13;
+    --bg-elevated: #17171f;
+    --border: #2a2a35;
+    --text: #eeece6;
+    --text-dim: #8c8a95;
+    --accent: #6ee7d8;
+    --accent-dim: #2c3f3c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(110, 231, 216, 0.06), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(110, 231, 216, 0.04), transparent 40%);
+    color: var(--text);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    margin-bottom: 2rem;
+  }
+
+  .badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2.4rem, 7vw, 4.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 1.2rem;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  p.lead {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .footer-note {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: #4d4b56;
+    letter-spacing: 0.04em;
+  }
+
+  /* Floating Tech Support Button */
+  .support-toggle {
+    position: fixed;
+    bottom: 1.8rem;
+    right: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.3rem;
+    background: var(--accent);
+    color: #0e0e13;
+    border: none;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(110, 231, 216, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 100;
+  }
+
+  .support-toggle:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(110, 231, 216, 0.35);
+  }
+
+  .support-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Support Panel */
+  .support-panel {
+    position: fixed;
+    bottom: 5.5rem;
+    right: 1.8rem;
+    width: min(340px, calc(100vw - 2.4rem));
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    z-index: 100;
+  }
+
+  .support-panel.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .support-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.3rem;
+  }
+
+  .support-panel h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .support-panel-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .support-panel-close:hover { color: var(--text); }
+
+  .support-panel p.desc {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 0.85rem; }
+
+  .field label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-bottom: 0.35rem;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+  }
+
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .field textarea { min-height: 80px; resize: vertical; }
+
+  .support-panel button[type="submit"] {
+    width: 100%;
+    padding: 0.7rem;
+    background: var(--accent);
+    color: #0e0e13;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 0.3rem;
+    transition: opacity 0.15s ease;
+  }
+
+  .support-panel button[type="submit"]:hover { opacity: 0.9; }
+
+  .form-status {
+    margin-top: 0.7rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    display: none;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .support-panel { right: 1.2rem; bottom: 5.2rem; }
+    .support-toggle { right: 1.2rem; bottom: 1.4rem; }
+  }
+</style>
 </head>
 <body>
-  <h1>Inkos Commissions</h1>
-  <p class="subtitle">Diese Seite ist im Aufbau.</p>
 
-  <h2 class="section-title">Tech Support</h2>
-  <p class="subtitle" style="margin-bottom: 1.5rem; font-size: 0.95rem;">
-    Probleme mit der Website? Fehler gefunden? Schreib mir.
-  </p>
+  <div class="hero">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Website in Development
+    </div>
+    <h1>Inkos <span>Commissions</span></h1>
+    <p class="lead">
+      Diese Seite wird gerade aufgebaut. Neue Inhalte und Funktionen folgen bald —
+      schau in der Zwischenzeit gerne wieder vorbei.
+    </p>
+  </div>
 
-  <form id="contactForm" action="https://formspree.io/f/xeeyaong" method="POST">
-    <div>
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" required>
+  <div class="footer-note">inkoscommissions.github.io</div>
+
+  <button class="support-toggle" id="supportToggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    Tech Support
+  </button>
+
+  <div class="support-panel" id="supportPanel">
+    <div class="support-panel-header">
+      <h2>Tech Support</h2>
+      <button class="support-panel-close" id="supportClose">&times;</button>
     </div>
-    <div>
-      <label for="email">Deine Email</label>
-      <input type="email" id="email" name="email" required>
-    </div>
-    <div>
-      <label for="message">Was ist das Problem / deine Anfrage?</label>
-      <textarea id="message" name="message" required></textarea>
-    </div>
-    <button type="submit">Senden</button>
-    <p class="status" id="statusMsg"></p>
-  </form>
+    <p class="desc">Probleme mit der Website oder Fragen zur technischen Umsetzung? Schreib mir kurz.</p>
+
+    <form id="contactForm" action="https://formspree.io/f/xeeyaong" method="POST">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="field">
+        <label for="email">Deine Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="field">
+        <label for="message">Nachricht</label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+      <button type="submit">Senden</button>
+      <p class="form-status" id="statusMsg"></p>
+    </form>
+  </div>
 
   <script>
+    const toggle = document.getElementById('supportToggle');
+    const panel = document.getElementById('supportPanel');
+    const closeBtn = document.getElementById('supportClose');
+
+    toggle.addEventListener('click', () => panel.classList.toggle('open'));
+    closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+    document.addEventListener('click', (e) => {
+      if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+        panel.classList.remove('open');
+      }
+    });
+
     const form = document.getElementById('contactForm');
     const statusMsg = document.getElementById('statusMsg');
 
-    form.addEventListener('submit', async function(e) {
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
       const data = new FormData(form);
 
@@ -124,19 +323,19 @@
           headers: { 'Accept': 'application/json' }
         });
 
+        statusMsg.style.display = 'block';
         if (response.ok) {
           statusMsg.textContent = "Danke! Deine Nachricht wurde gesendet.";
-          statusMsg.style.display = 'block';
           form.reset();
         } else {
           statusMsg.textContent = "Etwas ist schiefgelaufen. Bitte versuch's nochmal.";
-          statusMsg.style.display = 'block';
         }
       } catch (error) {
-        statusMsg.textContent = "Etwas ist schiefgelaufen. Bitte versuch's nochmal.";
         statusMsg.style.display = 'block';
+        statusMsg.textContent = "Etwas ist schiefgelaufen. Bitte versuch's nochmal.";
       }
     });
   </script>
+
 </body>
 </html>
