@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inko`s Commissions</title>
+<title>Inkos Commissions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e0e13;
-    --bg-elevated: #17171f;
-    --border: #2a2a35;
+    --bg: #100e15;
+    --bg-elevated: #1a1720;
+    --border: #2f2a3a;
     --text: #eeece6;
-    --text-dim: #8c8a95;
-    --accent: #6ee7d8;
-    --accent-dim: #2c3f3c;
+    --text-dim: #938da0;
+    --accent: #b795f0;
+    --accent-dim: #362c47;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,8 +24,8 @@
     font-family: 'Inter', -apple-system, sans-serif;
     background: var(--bg);
     background-image:
-      radial-gradient(circle at 15% 20%, rgba(110, 231, 216, 0.06), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(110, 231, 216, 0.04), transparent 40%);
+      radial-gradient(circle at 15% 20%, rgba(183, 149, 240, 0.08), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(183, 149, 240, 0.05), transparent 40%);
     color: var(--text);
     min-height: 100vh;
     position: relative;
@@ -40,6 +40,8 @@
     justify-content: center;
     text-align: center;
     padding: 2rem;
+    position: relative;
+    z-index: 2;
   }
 
   .badge {
@@ -70,6 +72,21 @@
     50% { opacity: 0.35; }
   }
 
+  /* Licht-Effekt, der der Maus folgt */
+  .cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(183, 149, 240, 0.10) 0%, rgba(183, 149, 240, 0.04) 35%, transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    will-change: left, top;
+  }
+
   h1 {
     font-family: 'Space Grotesk', sans-serif;
     font-size: clamp(2.4rem, 7vw, 4.5rem);
@@ -98,6 +115,7 @@
     font-size: 0.75rem;
     color: #4d4b56;
     letter-spacing: 0.04em;
+    z-index: 2;
   }
 
   /* Floating Tech Support Button */
@@ -110,21 +128,21 @@
     gap: 0.6rem;
     padding: 0.85rem 1.3rem;
     background: var(--accent);
-    color: #0e0e13;
+    color: #100e15;
     border: none;
     border-radius: 999px;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
-    box-shadow: 0 8px 24px rgba(110, 231, 216, 0.25);
+    box-shadow: 0 8px 24px rgba(183, 149, 240, 0.25);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     z-index: 100;
   }
 
   .support-toggle:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 28px rgba(110, 231, 216, 0.35);
+    box-shadow: 0 12px 28px rgba(183, 149, 240, 0.35);
   }
 
   .support-toggle svg {
@@ -221,7 +239,7 @@
     width: 100%;
     padding: 0.7rem;
     background: var(--accent);
-    color: #0e0e13;
+    color: #100e15;
     border: none;
     border-radius: 8px;
     font-weight: 600;
@@ -249,15 +267,17 @@
 </head>
 <body>
 
+  <div class="cursor-glow" id="cursorGlow"></div>
+
   <div class="hero">
     <div class="badge">
-      <span class="badge-dot"></span>
       Website in Development
+      <span class="badge-dot"></span>
     </div>
     <h1>Inkos <span>Commissions</span></h1>
     <p class="lead">
-      This site is currently in Development. 
-               Come back later.
+      This website is in Development.<br>
+      come back later.
     </p>
   </div>
 
@@ -275,7 +295,7 @@
       <h2>Tech Support</h2>
       <button class="support-panel-close" id="supportClose">&times;</button>
     </div>
-    <p class="desc">Probleme mit der Website oder Fragen zur technischen Umsetzung? Schreib mir kurz.</p>
+    <p class="desc">Having issues with the website or questions about the tech behind it? Send me a message.</p>
 
     <form id="contactForm" action="https://formspree.io/f/xeeyaong" method="POST">
       <div class="field">
@@ -283,19 +303,25 @@
         <input type="text" id="name" name="name" required>
       </div>
       <div class="field">
-        <label for="email">Email Adresse</label>
+        <label for="email">Email Address</label>
         <input type="email" id="email" name="email" required>
       </div>
       <div class="field">
-        <label for="message">Nachricht</label>
+        <label for="message">Message</label>
         <textarea id="message" name="message" required></textarea>
       </div>
-      <button type="submit">Senden</button>
+      <button type="submit">Send</button>
       <p class="form-status" id="statusMsg"></p>
     </form>
   </div>
 
   <script>
+    const cursorGlow = document.getElementById('cursorGlow');
+    window.addEventListener('mousemove', (e) => {
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top = e.clientY + 'px';
+    });
+
     const toggle = document.getElementById('supportToggle');
     const panel = document.getElementById('supportPanel');
     const closeBtn = document.getElementById('supportClose');
@@ -325,14 +351,14 @@
 
         statusMsg.style.display = 'block';
         if (response.ok) {
-          statusMsg.textContent = "Danke! Deine Nachricht wurde gesendet.";
+          statusMsg.textContent = "Thanks! Your message has been sent.";
           form.reset();
         } else {
-          statusMsg.textContent = "Etwas ist schiefgelaufen. Bitte versuch's nochmal.";
+          statusMsg.textContent = "Something went wrong. Please try again.";
         }
       } catch (error) {
         statusMsg.style.display = 'block';
-        statusMsg.textContent = "Etwas ist schiefgelaufen. Bitte versuch's nochmal.";
+        statusMsg.textContent = "Something went wrong. Please try again.";
       }
     });
   </script>
