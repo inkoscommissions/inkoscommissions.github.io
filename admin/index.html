@@ -1,1 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Access - Inkos Commissions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#100e15;
+--bg-elevated:#1a1720;
+--border:#2f2a3a;
+--text:#eeece6;
+--text-dim:#938da0;
+--accent:#b795f0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:'Inter',sans-serif;
+background:#100e15;
+background-image:
+radial-gradient(circle at 15% 20%, rgba(183,149,240,.08), transparent 40%),
+radial-gradient(circle at 85% 80%, rgba(183,149,240,.05), transparent 40%);
+color:var(--text);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+}
+.cursor-glow{
+position:fixed;left:0;top:0;width:500px;height:500px;border-radius:50%;
+background:radial-gradient(circle,rgba(183,149,240,.10)0%,rgba(183,149,240,.04)35%,transparent 70%);
+transform:translate(-50%,-50%);
+pointer-events:none;
+}
+.card{
+position:relative;z-index:2;
+width:min(430px,92vw);
+background:rgba(26,23,32,.9);
+border:1px solid var(--border);
+border-radius:18px;
+padding:2rem;
+text-align:center;
+backdrop-filter:blur(12px);
+}
+.badge{display:inline-block;padding:.45rem .9rem;border:1px solid var(--border);border-radius:999px;color:var(--text-dim);margin-bottom:1.5rem}
+h1{font-family:'Space Grotesk',sans-serif;font-size:2rem;margin-bottom:.5rem}
+p{color:var(--text-dim);margin-bottom:1.5rem}
+input{
+width:100%;padding:.9rem 1rem;
+background:var(--bg);
+border:1px solid var(--border);
+border-radius:10px;
+color:var(--text);
+text-align:center;
+font-size:1rem;
+text-transform:uppercase;
+margin-bottom:1rem;
+}
+input:focus{outline:none;border-color:var(--accent)}
+button{
+width:100%;padding:.9rem;border:none;border-radius:10px;
+background:var(--accent);font-weight:700;cursor:pointer;
+}
+#error{display:none;color:#ff7d7d;margin-top:1rem}
+.footer{position:fixed;bottom:20px;color:#555}
+</style>
+</head>
+<body>
+<div class="cursor-glow" id="glow"></div>
 
+<div class="card">
+<div class="badge">Admin Access</div>
+<h1>Enter Admin Code</h1>
+<p>Only authorized artists can continue.</p>
+<input id="code" type="text" maxlength="14" placeholder="XXXX-XXXX-XXXX">
+<button onclick="login()">Continue</button>
+<div id="error">Invalid admin code.</div>
+</div>
+
+<div class="footer">Made by Mo_2885</div>
+
+<script>
+const glow=document.getElementById("glow");
+window.addEventListener("mousemove",e=>{
+glow.style.left=e.clientX+"px";
+glow.style.top=e.clientY+"px";
+});
+
+const input=document.getElementById("code");
+input.addEventListener("input",()=>{
+let v=input.value.toUpperCase().replace(/[^A-Z0-9]/g,"");
+if(v.length>4)v=v.slice(0,4)+"-"+v.slice(4);
+if(v.length>9)v=v.slice(0,9)+"-"+v.slice(9,13);
+input.value=v;
+});
+input.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
+
+function login(){
+if(input.value==="LI2E-BB47-2885"){
+window.location.href="/dashboard/";
+}else{
+document.getElementById("error").style.display="block";
+}
+}
+</script>
+</body>
+</html>
