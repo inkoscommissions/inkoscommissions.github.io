@@ -107,6 +107,38 @@
     line-height: 1.6;
   }
 
+  .code-label {
+    margin-top: 2rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .code-input {
+    margin-top: 0.6rem;
+    width: min(280px, 100%);
+    padding: 0.9rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    text-align: center;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .code-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .code-input::placeholder {
+    color: var(--text-dim);
+  }
+
   .footer-note {
     position: absolute;
     bottom: 1.5rem;
@@ -116,6 +148,36 @@
     color: #4d4b56;
     letter-spacing: 0.04em;
     z-index: 2;
+  }
+
+  /* Admin Button oben links */
+  .admin-toggle {
+    position: fixed;
+    top: 1.8rem;
+    left: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    z-index: 100;
+  }
+
+  .admin-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent-dim);
+    transform: translateY(-2px);
+  }
+
+  .admin-toggle svg {
+    width: 18px;
+    height: 18px;
   }
 
   /* Floating Tech Support Button */
@@ -269,6 +331,12 @@
 
   <div class="cursor-glow" id="cursorGlow"></div>
 
+  <a href="https://inkoscommissions.github.io/admin/" class="admin-toggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  </a>
+
   <div class="hero">
     <div class="badge">
       Website in Development
@@ -279,6 +347,9 @@
       This website is in Development.<br>
       come back later.
     </p>
+
+    <p class="code-label">Enter the code for your picture here</p>
+    <input id="code" class="code-input" type="text" maxlength="14" placeholder="XXXX-XXXX-XXXX">
   </div>
 
   <div class="footer-note">Made by Mo_2885</div>
@@ -320,6 +391,15 @@
     window.addEventListener('mousemove', (e) => {
       cursorGlow.style.left = e.clientX + 'px';
       cursorGlow.style.top = e.clientY + 'px';
+    });
+
+    // Code-Feld: nur die Formatierung (XXXX-XXXX-XXXX), noch ohne Funktion
+    const codeInput = document.getElementById('code');
+    codeInput.addEventListener('input', () => {
+      let v = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (v.length > 4) v = v.slice(0, 4) + '-' + v.slice(4);
+      if (v.length > 9) v = v.slice(0, 9) + '-' + v.slice(9, 13);
+      codeInput.value = v;
     });
 
     const toggle = document.getElementById('supportToggle');
