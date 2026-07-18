@@ -64,6 +64,12 @@ if (sessionStorage.getItem("adminAuth") !== "true") {
     border-radius: 50%;
     background: var(--accent);
     box-shadow: 0 0 8px var(--accent);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
   }
 
   .sidebar-header span {
@@ -87,8 +93,19 @@ if (sessionStorage.getItem("adminAuth") !== "true") {
     border-radius: 8px;
     color: var(--text-dim);
     font-size: 0.9rem;
+    text-decoration: none;
     cursor: default;
     user-select: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .sidebar-item.clickable {
+    cursor: pointer;
+  }
+
+  .sidebar-item.clickable:hover {
+    background: rgba(183, 149, 240, 0.08);
+    color: var(--text);
   }
 
   .sidebar-item svg {
