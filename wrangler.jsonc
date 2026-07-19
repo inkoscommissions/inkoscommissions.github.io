@@ -6,5 +6,11 @@
     "directory": "./public",
     "binding": "ASSETS",
     "run_worker_first": true
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "IMAGES",
+      "id": "HIER_DEINE_NAMESPACE_ID"
+    }
+  ]
 }
