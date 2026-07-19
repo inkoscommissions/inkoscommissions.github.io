@@ -94,13 +94,19 @@ if(v.length>9)v=v.slice(0,9)+"-"+v.slice(9,13);
 input.value=v;
 });
 input.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
-function login(){
-if(input.value==="LI2E-BB47-2885"){
-sessionStorage.setItem("adminAuth","true");
-window.location.href="/admindashboard/";
-}else{
-document.getElementById("error").style.display="block";
-}
+async function login(){
+  try{
+    const res = await fetch("/api/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({code:input.value})
+    });
+    if(res.ok){
+      window.location.href="/admindashboard/";
+      return;
+    }
+  }catch{}
+  document.getElementById("error").style.display="block";
 }
 </script>
 </body>
