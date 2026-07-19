@@ -39,7 +39,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 2rem;
+    padding: 3rem 2rem;
     position: relative;
     z-index: 2;
   }
@@ -72,7 +72,6 @@
     50% { opacity: 0.35; }
   }
 
-  /* Licht-Effekt, der der Maus folgt */
   .cursor-glow {
     position: fixed;
     top: 0;
@@ -96,9 +95,7 @@
     margin-bottom: 1.2rem;
   }
 
-  h1 span {
-    color: var(--accent);
-  }
+  h1 span { color: var(--accent); }
 
   p.lead {
     color: var(--text-dim);
@@ -135,9 +132,51 @@
     border-color: var(--accent);
   }
 
-  .code-input::placeholder {
+  .code-input::placeholder { color: var(--text-dim); }
+
+  .code-status {
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    min-height: 1.2em;
     color: var(--text-dim);
   }
+
+  .code-status.err { color: #ff7d7d; }
+
+  .result {
+    margin-top: 1.5rem;
+    width: min(420px, 100%);
+    display: none;
+  }
+
+  .result.show { display: block; }
+
+  .result img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--bg-elevated);
+  }
+
+  .download-btn {
+    display: block;
+    width: 100%;
+    margin-top: 0.9rem;
+    padding: 0.8rem;
+    background: var(--accent);
+    color: #100e15;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .download-btn:hover { opacity: 0.9; }
 
   .footer-note {
     position: absolute;
@@ -150,7 +189,6 @@
     z-index: 2;
   }
 
-  /* Admin Button oben links */
   .admin-toggle {
     position: fixed;
     top: 1.8rem;
@@ -175,12 +213,8 @@
     transform: translateY(-2px);
   }
 
-  .admin-toggle svg {
-    width: 18px;
-    height: 18px;
-  }
+  .admin-toggle svg { width: 18px; height: 18px; }
 
-  /* Floating Tech Support Button */
   .support-toggle {
     position: fixed;
     bottom: 1.8rem;
@@ -207,12 +241,8 @@
     box-shadow: 0 12px 28px rgba(183, 149, 240, 0.35);
   }
 
-  .support-toggle svg {
-    width: 18px;
-    height: 18px;
-  }
+  .support-toggle svg { width: 18px; height: 18px; }
 
-  /* Support Panel */
   .support-panel {
     position: fixed;
     bottom: 5.5rem;
@@ -350,6 +380,12 @@
 
     <p class="code-label">Enter the code for your picture here</p>
     <input id="code" class="code-input" type="text" maxlength="14" placeholder="XXXX-XXXX-XXXX">
+    <p class="code-status" id="codeStatus"></p>
+
+    <div class="result" id="result">
+      <img id="resultImg" alt="Your picture">
+      <a class="download-btn" id="downloadBtn" download>Download picture</a>
+    </div>
   </div>
 
   <div class="footer-note">Made by Mo_2885</div>
@@ -393,14 +429,55 @@
       cursorGlow.style.top = e.clientY + 'px';
     });
 
-    // Code-Feld: nur die Formatierung (XXXX-XXXX-XXXX), noch ohne Funktion
     const codeInput = document.getElementById('code');
+    const codeStatus = document.getElementById('codeStatus');
+    const result = document.getElementById('result');
+    const resultImg = document.getElementById('resultImg');
+    const downloadBtn = document.getElementById('downloadBtn');
+
     codeInput.addEventListener('input', () => {
       let v = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
       if (v.length > 4) v = v.slice(0, 4) + '-' + v.slice(4);
       if (v.length > 9) v = v.slice(0, 9) + '-' + v.slice(9, 13);
       codeInput.value = v;
+
+      result.classList.remove('show');
+      setStatus('');
+
+      if (v.length === 14) lookup(v);
     });
+
+    codeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && codeInput.value.length === 14) lookup(codeInput.value);
+    });
+
+    function setStatus(msg, isErr) {
+      codeStatus.textContent = msg;
+      codeStatus.className = 'code-status' + (isErr ? ' err' : '');
+    }
+
+    async function lookup(code) {
+      setStatus('Looking up...');
+      try {
+        const res = await fetch('/api/picture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+
+        if (res.status === 404) return setStatus('No picture found for this code.', true);
+        if (!res.ok) return setStatus('Something went wrong. Please try again.', true);
+
+        const data = await res.json();
+        resultImg.src = data.data;
+        downloadBtn.href = data.data;
+        downloadBtn.setAttribute('download', data.name || 'picture');
+        result.classList.add('show');
+        setStatus('Here is your picture!');
+      } catch {
+        setStatus('Something went wrong. Please try again.', true);
+      }
+    }
 
     const toggle = document.getElementById('supportToggle');
     const panel = document.getElementById('supportPanel');
