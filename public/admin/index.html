@@ -65,6 +65,7 @@ button{
 width:100%;padding:.9rem;border:none;border-radius:10px;
 background:var(--accent);font-weight:700;cursor:pointer;
 }
+button:disabled{opacity:.6;cursor:default}
 #error{display:none;color:#ff7d7d;margin-top:1rem}
 .footer{position:fixed;bottom:20px;color:#555}
 </style>
@@ -76,7 +77,7 @@ background:var(--accent);font-weight:700;cursor:pointer;
 <h1>Enter Admin Code</h1>
 <p>Only authorized artists can continue.</p>
 <input id="code" type="text" maxlength="14" placeholder="XXXX-XXXX-XXXX">
-<button onclick="login()">Continue</button>
+<button id="submitBtn" onclick="login()">Continue</button>
 <div id="error">Invalid admin code.</div>
 </div>
 <div class="footer">Made by Mo_2885</div>
@@ -87,6 +88,7 @@ glow.style.left=e.clientX+"px";
 glow.style.top=e.clientY+"px";
 });
 const input=document.getElementById("code");
+const btn=document.getElementById("submitBtn");
 input.addEventListener("input",()=>{
 let v=input.value.toUpperCase().replace(/[^A-Z0-9]/g,"");
 if(v.length>4)v=v.slice(0,4)+"-"+v.slice(4);
@@ -95,8 +97,10 @@ input.value=v;
 });
 input.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
 async function login(){
+  document.getElementById("error").style.display="none";
+  btn.disabled=true;
   try{
-    const res = await fetch("/api/login",{
+    const res=await fetch("/api/login",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({code:input.value})
@@ -105,7 +109,8 @@ async function login(){
       window.location.href="/admindashboard/";
       return;
     }
-  }catch{}
+  }catch(e){}
+  btn.disabled=false;
   document.getElementById("error").style.display="block";
 }
 </script>
