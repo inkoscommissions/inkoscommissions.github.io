@@ -1,1 +1,10 @@
-
+{
+  "name": "inkoscommissions",
+  "main": "src/index.js",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  }
+}
