@@ -2,16 +2,14 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // --- Login ---
     if (url.pathname === "/api/login" && request.method === "POST") {
       const { code } = await request.json().catch(() => ({}));
-
       if (!code || code !== env.ADMIN_CODE) {
         return Response.json({ ok: false }, { status: 401 });
       }
-
       const exp = Date.now() + 2 * 60 * 60 * 1000;
       const sig = await hmac(String(exp), env.SESSION_SECRET);
-
       return Response.json({ ok: true }, {
         headers: {
           "Set-Cookie": `adminSession=${exp}.${sig}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=7200`
@@ -19,11 +17,60 @@ export default {
       });
     }
 
-    if (url.pathname.startsWith("/admindashboard")) {
-      const cookie = request.headers.get("Cookie") || "";
-      const match = cookie.match(/adminSession=([^;]+)/);
+    // --- Bild hochladen (nur eingeloggt) ---
+    if (url.pathname === "/api/upload" && request.method === "POST") {
+      if (!(await isAdmin(request, env))) {
+        return Response.json({ error: "unauthorized" }, { status: 401 });
+      }
+      const { code, name, data } = await request.json().catch(() => ({}));
+      if (!code || !data) {
+        return Response.json({ error: "missing" }, { status: 400 });
+      }
+      const key = code.toUpperCase();
+      const exists = await env.IMAGES.get(key);
+      if (exists) {
+        return Response.json({ error: "exists" }, { status: 409 });
+      }
+      await env.IMAGES.put(key, JSON.stringify({
+        name: name || "image",
+        data,
+        created: new Date().toISOString()
+      }));
+      return Response.json({ ok: true });
+    }
 
-      if (!match || !(await verify(match[1], env.SESSION_SECRET))) {
+    // --- Liste aller Codes (nur eingeloggt) ---
+    if (url.pathname === "/api/images" && request.method === "GET") {
+      if (!(await isAdmin(request, env))) {
+        return Response.json({ error: "unauthorized" }, { status: 401 });
+      }
+      const list = await env.IMAGES.list();
+      return Response.json({ keys: list.keys.map(k => k.name) });
+    }
+
+    // --- Bild löschen (nur eingeloggt) ---
+    if (url.pathname === "/api/delete" && request.method === "POST") {
+      if (!(await isAdmin(request, env))) {
+        return Response.json({ error: "unauthorized" }, { status: 401 });
+      }
+      const { code } = await request.json().catch(() => ({}));
+      if (code) await env.IMAGES.delete(code.toUpperCase());
+      return Response.json({ ok: true });
+    }
+
+    // --- Bild per Code abrufen (öffentlich, für Kunden) ---
+    if (url.pathname === "/api/picture" && request.method === "POST") {
+      const { code } = await request.json().catch(() => ({}));
+      if (!code) return Response.json({ error: "missing" }, { status: 400 });
+      const raw = await env.IMAGES.get(code.toUpperCase());
+      if (!raw) return Response.json({ error: "notfound" }, { status: 404 });
+      const entry = JSON.parse(raw);
+      return Response.json({ ok: true, name: entry.name, data: entry.data });
+    }
+
+    // --- Dashboard schützen ---
+    if (url.pathname.startsWith("/admindashboard")) {
+      if (!(await isAdmin(request, env))) {
         return Response.redirect(new URL("/admin/", request.url).toString(), 302);
       }
     }
@@ -31,6 +78,13 @@ export default {
     return env.ASSETS.fetch(request);
   }
 };
+
+async function isAdmin(request, env) {
+  const cookie = request.headers.get("Cookie") || "";
+  const match = cookie.match(/adminSession=([^;]+)/);
+  if (!match) return false;
+  return verify(match[1], env.SESSION_SECRET);
+}
 
 async function hmac(data, secret) {
   const key = await crypto.subtle.importKey(
