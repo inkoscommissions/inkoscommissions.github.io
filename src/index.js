@@ -17,18 +17,17 @@ export default {
       });
     }
 
-    // --- Bild hochladen (nur eingeloggt) ---
+    // --- Bild hochladen ---
     if (url.pathname === "/api/upload" && request.method === "POST") {
       if (!(await isAdmin(request, env))) {
         return Response.json({ error: "unauthorized" }, { status: 401 });
       }
-      const { code, name, data } = await request.json().catch(() => ({}));
+      const { code, name, data, thumb } = await request.json().catch(() => ({}));
       if (!code || !data) {
         return Response.json({ error: "missing" }, { status: 400 });
       }
       const key = code.toUpperCase();
-      const exists = await env.IMAGES.get(key);
-      if (exists) {
+      if (await env.IMAGES.get(key)) {
         return Response.json({ error: "exists" }, { status: 409 });
       }
       await env.IMAGES.put(key, JSON.stringify({
@@ -36,33 +35,58 @@ export default {
         data,
         created: new Date().toISOString()
       }));
+      if (thumb) {
+        await env.IMAGES.put("thumb:" + key, thumb);
+      }
       return Response.json({ ok: true });
     }
 
-    // --- Liste aller Codes (nur eingeloggt) ---
+    // --- Liste aller Codes ---
     if (url.pathname === "/api/images" && request.method === "GET") {
       if (!(await isAdmin(request, env))) {
         return Response.json({ error: "unauthorized" }, { status: 401 });
       }
       const list = await env.IMAGES.list();
-      return Response.json({ keys: list.keys.map(k => k.name) });
+      const keys = list.keys
+        .map(k => k.name)
+        .filter(n => !n.startsWith("thumb:"));
+      return Response.json({ keys });
     }
 
-    // --- Bild löschen (nur eingeloggt) ---
+    // --- Vorschaubild ---
+    if (url.pathname === "/api/thumb" && request.method === "GET") {
+      if (!(await isAdmin(request, env))) {
+        return Response.json({ error: "unauthorized" }, { status: 401 });
+      }
+      const code = (url.searchParams.get("code") || "").toUpperCase();
+      const thumb = await env.IMAGES.get("thumb:" + code);
+      if (!thumb) return Response.json({ error: "notfound" }, { status: 404 });
+      return Response.json({ ok: true, thumb });
+    }
+
+    // --- Bild löschen ---
     if (url.pathname === "/api/delete" && request.method === "POST") {
       if (!(await isAdmin(request, env))) {
         return Response.json({ error: "unauthorized" }, { status: 401 });
       }
       const { code } = await request.json().catch(() => ({}));
-      if (code) await env.IMAGES.delete(code.toUpperCase());
+      if (code) {
+        const key = code.toUpperCase();
+        await env.IMAGES.delete(key);
+        await env.IMAGES.delete("thumb:" + key);
+      }
       return Response.json({ ok: true });
     }
 
-    // --- Bild per Code abrufen (öffentlich, für Kunden) ---
+    // --- Bild per Code abrufen (öffentlich) ---
     if (url.pathname === "/api/picture" && request.method === "POST") {
       const { code } = await request.json().catch(() => ({}));
       if (!code) return Response.json({ error: "missing" }, { status: 400 });
-      const raw = await env.IMAGES.get(code.toUpperCase());
+      const key = code.toUpperCase();
+      if (key.startsWith("THUMB:")) {
+        return Response.json({ error: "notfound" }, { status: 404 });
+      }
+      const raw = await env.IMAGES.get(key);
       if (!raw) return Response.json({ error: "notfound" }, { status: 404 });
       const entry = JSON.parse(raw);
       return Response.json({ ok: true, name: entry.name, data: entry.data });
