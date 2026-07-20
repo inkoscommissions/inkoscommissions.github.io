@@ -119,6 +119,7 @@
     cursor:pointer; font-size:1.2rem; line-height:1; padding:0 .3rem;
   }
   .del:hover { color:#ff7d7d; }
+  .del:disabled { opacity:.4; cursor:default; }
   .empty { color:#5f5a6b; font-size:.85rem; }
 
   .placeholder { text-align:center; padding-top:6rem; color:var(--text-dim); }
@@ -339,12 +340,28 @@ async function loadCodes() {
       btn.textContent = "×";
       btn.onclick = async () => {
         if (!confirm("Delete " + k + "?")) return;
-        await fetch("/api/delete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: k })
-        });
-        loadCodes();
+        btn.disabled = true;
+        try {
+          const r = await fetch("/api/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: k })
+          });
+          if (r.ok) {
+            row.remove();
+            if (!codeList.children.length) {
+              codeList.innerHTML = '<p class="empty">No pictures yet.</p>';
+            }
+          } else if (r.status === 401) {
+            window.location.href = "/admin/";
+          } else {
+            setStatus("Could not delete.", "err");
+            btn.disabled = false;
+          }
+        } catch {
+          setStatus("Could not delete.", "err");
+          btn.disabled = false;
+        }
       };
       row.appendChild(btn);
 
